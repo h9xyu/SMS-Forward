@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">短信转发</string>
+    <string name="notification_channel">短信转发服务</string>
+    <string name="notification_forwarding">正在监听短信…</string>
+</resources>

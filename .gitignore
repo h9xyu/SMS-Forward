@@ -1,0 +1,28 @@
+# ===== Gradle / Android =====
+.gradle/
+build/
+app/build/
+app/release/
+release/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# Local configuration (SDK path)
+local.properties
+
+# ===== IDE =====
+.idea/
+*.iml
+
+# ===== Kotlin =====
+.kotlin/
+
+# ===== Python (pc_client) =====
+pc_client/build/
+pc_client/dist/
+__pycache__/
+*.pyc
+*.pyo
+*.spec

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Email icon -->
+    <path
+        android:fillColor="#12B7F5"
+        android:pathData="M30,36 L54,54 L78,36 L78,72 L30,72 Z" />
+    <!-- Arrow -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M48,30 L60,30 L60,42 L66,42 L54,54 L42,42 L48,42 Z" />
+</vector>
