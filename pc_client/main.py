@@ -4,10 +4,14 @@ Receives SMS verification codes from Android via ntfy.sh.
 Shows Windows toast notifications and copies codes to clipboard.
 """
 
+import ctypes
 import os
 import threading
 import tkinter as tk
 import subprocess
+
+# Enable PerMonitorV2 DPI awareness for crisp text on high-DPI displays
+ctypes.windll.shcore.SetProcessDpiAwareness(2)
 from tkinter import messagebox
 
 import pystray
@@ -102,12 +106,36 @@ def _make_menu(icon):
     def on_set_ntfy():
         current = config.load_config().get("ntfy_topic", "")
         ps_script = (
-            f'Add-Type -AssemblyName Microsoft.VisualBasic; '
-            f'$result = [Microsoft.VisualBasic.Interaction]::InputBox('
-            f'"输入 ntfy.sh 主题（与 Android 端一致）", '
-            f'"设置 ntfy 主题", '
-            f'"{current}"); '
-            f'if ($result -ne "") {{ Write-Output $result }}'
+            f'Add-Type -AssemblyName System.Windows.Forms,System.Drawing; '
+            f'$f = New-Object System.Windows.Forms.Form; '
+            f'$f.Text = "SMS Forward — 设置 ntfy 主题"; '
+            f'$f.Size = New-Object System.Drawing.Size(400,160); '
+            f'$f.StartPosition = "CenterScreen"; '
+            f'$f.FormBorderStyle = "FixedDialog"; '
+            f'$f.MaximizeBox = $false; $f.MinimizeBox = $false; '
+            f'$f.Font = New-Object System.Drawing.Font("Segoe UI",10); '
+            f'$lbl = New-Object System.Windows.Forms.Label; '
+            f'$lbl.Text = "请输入 ntfy.sh 主题（与 Android 端一致）："; '
+            f'$lbl.Location = New-Object System.Drawing.Point(18,18); '
+            f'$lbl.AutoSize = $true; '
+            f'$f.Controls.Add($lbl); '
+            f'$txt = New-Object System.Windows.Forms.TextBox; '
+            f'$txt.Text = "{current}"; '
+            f'$txt.Location = New-Object System.Drawing.Point(18,48); '
+            f'$txt.Size = New-Object System.Drawing.Size(348,28); '
+            f'$f.Controls.Add($txt); '
+            f'$ok = New-Object System.Windows.Forms.Button; '
+            f'$ok.Text = "确定"; $ok.DialogResult = "OK"; '
+            f'$ok.Location = New-Object System.Drawing.Point(206,90); '
+            f'$ok.Size = New-Object System.Drawing.Size(75,28); '
+            f'$f.Controls.Add($ok); '
+            f'$cancel = New-Object System.Windows.Forms.Button; '
+            f'$cancel.Text = "取消"; $cancel.DialogResult = "Cancel"; '
+            f'$cancel.Location = New-Object System.Drawing.Point(290,90); '
+            f'$cancel.Size = New-Object System.Drawing.Size(75,28); '
+            f'$f.Controls.Add($cancel); '
+            f'$f.AcceptButton = $ok; $f.CancelButton = $cancel; '
+            f'if ($f.ShowDialog() -eq "OK") {{ Write-Output $txt.Text }}'
         )
         r = subprocess.run(
             ["powershell", "-NoProfile", "-Command", ps_script],
