@@ -7,7 +7,8 @@ Shows Windows toast notifications and copies codes to clipboard.
 import os
 import threading
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+import subprocess
+from tkinter import messagebox
 
 import pystray
 from PIL import Image, ImageDraw, ImageFont
@@ -84,7 +85,7 @@ def _make_menu(icon):
 
         def _show():
             root = tk.Tk()
-            root.withdraw()
+            root.geometry("1x1+-10000+-10000")
             messagebox.showinfo(
                 "SMS Forward 状态",
                 f'ntfy 主题: {cfg["ntfy_topic"]}\n'
@@ -100,14 +101,22 @@ def _make_menu(icon):
 
     def on_set_ntfy():
         current = config.load_config().get("ntfy_topic", "")
-        root = tk.Tk()
-        root.withdraw()
-        new_topic = simpledialog.askstring(
-            "设置 ntfy 主题",
-            "输入 ntfy.sh 主题（与 Android 端一致）",
-            initialvalue=current,
+        ps_script = (
+            f'Add-Type -AssemblyName Microsoft.VisualBasic; '
+            f'$result = [Microsoft.VisualBasic.Interaction]::InputBox('
+            f'"输入 ntfy.sh 主题（与 Android 端一致）", '
+            f'"设置 ntfy 主题", '
+            f'"{current}"); '
+            f'if ($result -ne "") {{ Write-Output $result }}'
         )
-        root.destroy()
+        r = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_script],
+            capture_output=True,
+            text=True,
+            timeout=30,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+        )
+        new_topic = r.stdout.strip() if r.stdout else ""
         if new_topic:
             cfg = config.load_config()
             cfg["ntfy_topic"] = new_topic
@@ -126,7 +135,7 @@ def _make_menu(icon):
     def on_settings():
         os.startfile(str(config.CONFIG_FILE))
 
-    def on_quit(icon):
+    def on_quit(icon, item):
         config.release_lock()
         icon.stop()
 
@@ -148,7 +157,7 @@ def _make_menu(icon):
 def main():
     if not config.acquire_lock():
         root = tk.Tk()
-        root.withdraw()
+        root.geometry("1x1+-10000+-10000")
         messagebox.showinfo("提示", "SMS Forward 已在运行中")
         root.destroy()
         return
